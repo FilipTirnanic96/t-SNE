@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import time
-import simple_TSNE
 
 
 from sklearn.manifold import TSNE

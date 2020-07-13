@@ -24,12 +24,18 @@ def compute_pairwise_distances(X, metric, squared):
         raise ValueError("Incorrect type of metric.")
 
 
+def compute_pairwise_joint_probabilities(distances, perplexity):
+    P = 0
+    return P
+    
+    
+
 def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 200, momentum_alpha = 0):
     # compute distances between training samples
     distances = compute_pairwise_distances(X, "euclidean")   
     
     # compute pairwise affinities p(j|i) whith perplexity Perp
-    
+    compute_pairwise_joint_probabilities(distances, perplexity)
     # compute p(i,j) =  (p(j|i) +  p(i|j)) / (2n)
     
     # sample init y from Gauss ~ N(0, 10^(-4)*I)
