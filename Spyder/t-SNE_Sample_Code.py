@@ -9,13 +9,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import time
-
+import simple_TSNE
 
 from sklearn.manifold import TSNE
 
 np.random.seed(50)
-num_class_1 = 1000
-num_class_2 = 1000
+num_class_1 = 100
+num_class_2 = 100
 
 # first class Gauss 2d
 mean1 = np.array([1,1])
@@ -40,12 +40,14 @@ plt.show()
 # execute t-SNE
 X = np.concatenate((X1, X2), axis = 0)
 y = np.concatenate((y1, y2), axis = 0)
-t_SNE = TSNE(n_components = 2, perplexity = 30)
+t_SNE = TSNE(n_components = 2, perplexity = 30, method="exact")
 start_time = time.time()
-X_trans = t_SNE.fit_transform(X)
+#X_trans = t_SNE.fit_transform(X)
+simple_TSNE.TSNE(X)
 elapsed_time = time.time() - start_time
 print("The execution of t-SNE last for ", elapsed_time, "s")
 # plot t-SNE
+print()
 plt.plot(X_trans[np.where(y == 0),0], X_trans[np.where(y == 0),1], 'ro')
 plt.plot(X_trans[np.where(y == 1),0], X_trans[np.where(y == 1),1], 'bo')
 plt.legend(['class1', 'class2'])
