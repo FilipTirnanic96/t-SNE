@@ -94,8 +94,9 @@ def compute_pairwise_joint_probabilities(distances, perplexity, n_iter = 100, mi
     return P
    
     
-def gredient_decent(y, P, n_iter, n_iter_without_progress=300, momentum=0.8, learning_rate=200.0, min_gain=0.01, min_grad_norm=1e-7):
-    grad = np.zeors((y.shape[0], y.shape[1]))
+def gredient_decent(y, P, n_iter, n_iter_without_progress=300, momentum=0.5, learning_rate=200.0, min_gain=0.01, min_grad_norm=1e-7):
+    grad = np.zeros_like(y)
+    update = np.zeros_like(y)
     for i in np.arange(0, n_iter):
         # compute q(i,j)
         y_distances = compute_pairwise_distances(y, "euclidean", True) 
@@ -104,13 +105,18 @@ def gredient_decent(y, P, n_iter, n_iter_without_progress=300, momentum=0.8, lea
         Q = nominator / (np.sum(nominator))
         # compute gradient(Cost func.)
         PQd = (P - Q) * nominator
-        for j in range(0, y.shape[0]):
-            grad[j] = np.dot(np.ravel(PQd[i], order='K'), y[i] - y)
+        for j in np.arange(0, y.shape[0]):
+            grad[j] = 4 * np.dot(PQd[j], y[j] - y)
         # update solution y(i) = y(i-1) + learning_rate * gradient(Cost func.)
-        
+        update = update * momentum - learning_rate * grad 
+        y = y + update 
+        grad_norm = np.sqrt(np.sum(grad**2))
+        if grad_norm < min_grad_norm:
+            break;
+    print("end")
     return y
 
-def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 200, momentum = 0):
+def TSNE(X, n_components = 2, perplexity = 30, n_iter = 250, learning_rate = 200, momentum = 0):
     # compute distances between training samples
     distances = compute_pairwise_distances(X, "euclidean", True)   
     
@@ -121,6 +127,6 @@ def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 20
     y = np.random.multivariate_normal(np.zeros((2)), 10**(-4) * np.identity(2), X.shape[0])
     
     # use gradinet decent to find the solution    
-    y = gredient_decent(p0 = y, p = P, n_iter = n_iter)
+    y = gredient_decent(y = y, P = P, n_iter = n_iter)
         
     return y

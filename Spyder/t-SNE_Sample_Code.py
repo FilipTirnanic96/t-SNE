@@ -40,16 +40,30 @@ plt.show()
 # execute t-SNE
 X = np.concatenate((X1, X2), axis = 0)
 y = np.concatenate((y1, y2), axis = 0)
-t_SNE = TSNE(n_components = 2, perplexity = 30, method="exact")
+t_SNE = TSNE(n_components = 2, perplexity = 20, early_exaggeration = 1, method="exact")
 start_time = time.time()
-#X_trans = t_SNE.fit_transform(X)
-simple_TSNE.TSNE(X)
+X_trans_t = t_SNE.fit_transform(X)
 elapsed_time = time.time() - start_time
 print("The execution of t-SNE last for ", elapsed_time, "s")
+
+start_time = time.time()
+X_trans = simple_TSNE.TSNE(X, perplexity = 20)
+#P_mat = np.load("P_mat.npy")
+#P_mat = P_mat / np.sum(P_mat)
+elapsed_time = time.time() - start_time
+print("The execution of simple t-SNE last for ", elapsed_time, "s")
+
 # plot t-SNE
-print()
 plt.plot(X_trans[np.where(y == 0),0], X_trans[np.where(y == 0),1], 'ro')
 plt.plot(X_trans[np.where(y == 1),0], X_trans[np.where(y == 1),1], 'bo')
+plt.legend(['class1', 'class2'])
+plt.title('Simple t-SNE on sytetic data')
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.show()
+
+plt.plot(X_trans_t[np.where(y == 0),0], X_trans_t[np.where(y == 0),1], 'ro')
+plt.plot(X_trans_t[np.where(y == 1),0], X_trans_t[np.where(y == 1),1], 'bo')
 plt.legend(['class1', 'class2'])
 plt.title('t-SNE on sytetic data')
 plt.xlabel('x1')
