@@ -6,7 +6,7 @@ Created on Mon Jul 13 12:16:03 2020
 """
 import numpy as np
 import math
-
+from time import time
 """
 Compute distances between all dataset points
 
@@ -22,17 +22,26 @@ distances : array, shape (n_samples * (n_samples-1) / 2,)
         Condensed joint probability matrix.
 """
 def compute_pairwise_distances(X, metric, squared):
+    """  dist(x, y) = sqrt(dot(x, x) - 2 * dot(x, y) + dot(y, y)) - much faster"""
     n_samples = X.shape[0]
     if (metric == "euclidean") :
         distance = np.zeros((n_samples, n_samples))
         if(squared):
+            XX = np.sum(X**2, axis = 1)[:,np.newaxis]
+            YY = XX.T
+            distance = XX - 2*np.dot(X,X.T) + YY
+        else:
+            XX = np.sum(X**2, axis = 1)[:,np.newaxis]
+            YY = XX.T
+            distance = np.sqrt(XX - 2*np.dot(X,X.T) + YY)
+        '''if(squared):
             for i in np.arange(0, n_samples):
-                 distance[i,:] = np.sum((X - X[i, :])**2, axis = 1)
-
+                # distance[i,:] = np.sum((X - X[i, :])**2, axis = 1)
+                distance[i,:] = np.sum((X - X[i, :])**2, axis = 1)
         else:
             for i in np.arange(0, n_samples):
                  distance[i,:] = np.sqrt(np.sum((X - X[i, :])**2, axis = 1))
-                 
+         '''        
         return distance
 
     else:
@@ -90,7 +99,7 @@ def compute_pairwise_joint_probabilities(distances, perplexity, n_iter = 100, mi
             
     P = P_conditional + P_conditional.T
     sum_P = np.maximum(np.sum(P), 1e-7)
-    P = np.maximum(P / sum_P, 1e-7)
+    P = np.maximum(P / sum_P, 0)
     return P
    
     
@@ -106,26 +115,32 @@ def gredient_decent(y, P, n_iter, n_iter_without_progress=300, momentum=0.5, lea
         # compute gradient(Cost func.)
         PQd = (P - Q) * nominator
         for j in np.arange(0, y.shape[0]):
-            grad[j] = 4 * np.dot(PQd[j], y[j] - y)
+            grad[j] =  np.dot(PQd[j], y[j] - y)      
+        grad *= 4 
         # update solution y(i) = y(i-1) + learning_rate * gradient(Cost func.)
         update = update * momentum - learning_rate * grad 
         y = y + update 
         grad_norm = np.sqrt(np.sum(grad**2))
         if grad_norm < min_grad_norm:
             break;
-    print("end")
     return y
 
+
 def TSNE(X, n_components = 2, perplexity = 30, n_iter = 250, learning_rate = 200, momentum = 0):
+    n_samples = X.shape[0]
     # compute distances between training samples
+    start_time = time()
     distances = compute_pairwise_distances(X, "euclidean", True)   
-    
+    elapsed_time = time() - start_time
+    #print("The execution of compute_pairwise_distances() simple t-SNE last for ", elapsed_time, "s") 
     # compute pairwise affinities p(j|i) whith perplexity Perp
+    start_time = time()
     P = compute_pairwise_joint_probabilities(distances, perplexity)
-     
+    elapsed_time = time() - start_time
+    #print("The execution of compute_pairwise_joint_probabilities() simple t-SNE last for ", elapsed_time, "s") 
     # sample init y from Gauss ~ N(0, 10^(-4)*I)
-    y = np.random.multivariate_normal(np.zeros((2)), 10**(-4) * np.identity(2), X.shape[0])
-    
+    #y = 1e-4 * np.random.randn(n_samples, n_components).astype(np.float32)
+    y = np.load("y_ini.npy").reshape(n_samples, n_components)
     # use gradinet decent to find the solution    
     y = gredient_decent(y = y, P = P, n_iter = n_iter)
         

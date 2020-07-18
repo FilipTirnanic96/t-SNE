@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-import time
+from time import time
 import simple_TSNE
 
 from sklearn.manifold import TSNE
@@ -40,17 +40,15 @@ plt.show()
 # execute t-SNE
 X = np.concatenate((X1, X2), axis = 0)
 y = np.concatenate((y1, y2), axis = 0)
-t_SNE = TSNE(n_components = 2, perplexity = 20, early_exaggeration = 1, method="exact")
-start_time = time.time()
+t_SNE = TSNE(n_components = 2, perplexity = 30, early_exaggeration = 1, method="exact")
+start_time = time()
 X_trans_t = t_SNE.fit_transform(X)
-elapsed_time = time.time() - start_time
+elapsed_time = time() - start_time
 print("The execution of t-SNE last for ", elapsed_time, "s")
 
-start_time = time.time()
-X_trans = simple_TSNE.TSNE(X, perplexity = 20)
-#P_mat = np.load("P_mat.npy")
-#P_mat = P_mat / np.sum(P_mat)
-elapsed_time = time.time() - start_time
+start_time = time()
+X_trans = simple_TSNE.TSNE(X, perplexity = 30)
+elapsed_time = time() - start_time
 print("The execution of simple t-SNE last for ", elapsed_time, "s")
 
 # plot t-SNE
