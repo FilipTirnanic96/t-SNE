@@ -40,14 +40,14 @@ plt.show()
 # execute t-SNE
 X = np.concatenate((X1, X2), axis = 0)
 y = np.concatenate((y1, y2), axis = 0)
-t_SNE = TSNE(n_components = 2, perplexity = 30, early_exaggeration = 1, method="exact")
+t_SNE = TSNE(n_components = 2, n_iter = 1000, perplexity = 30, early_exaggeration = 1, method="exact")
 start_time = time()
 X_trans_t = t_SNE.fit_transform(X)
 elapsed_time = time() - start_time
 print("The execution of t-SNE last for ", elapsed_time, "s")
 
 start_time = time()
-X_trans = simple_TSNE.TSNE(X, perplexity = 30)
+X_trans = simple_TSNE.TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, early_exaggeration = 1)
 elapsed_time = time() - start_time
 print("The execution of simple t-SNE last for ", elapsed_time, "s")
 

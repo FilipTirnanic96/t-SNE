@@ -100,20 +100,30 @@ def compute_pairwise_joint_probabilities(distances, perplexity, n_iter = 100, mi
     P = P_conditional + P_conditional.T
     sum_P = np.maximum(np.sum(P), 1e-7)
     P = np.maximum(P / sum_P, 0)
+    np.fill_diagonal(P, 0)
     return P
    
     
-def gredient_decent(y, P, n_iter, n_iter_without_progress=300, momentum=0.5, learning_rate=200.0, min_gain=0.01, min_grad_norm=1e-7):
+def gredient_decent(y, P, it, n_iter, n_iter_without_progress=300, n_iter_check = 50, momentum=0.5, learning_rate=200.0, min_gain=0.01, min_grad_norm=1e-7):
     grad = np.zeros_like(y)
     update = np.zeros_like(y)
-    for i in np.arange(0, n_iter):
+    for i in np.arange(it, n_iter):
         # compute q(i,j)
         y_distances = compute_pairwise_distances(y, "euclidean", True) 
         nominator = (1 + y_distances) ** (-1)
         np.fill_diagonal(nominator, 0)
         Q = nominator / (np.sum(nominator))
+        
+        # compute error
+        if (i + 1) % n_iter_check == 0 or i == n_iter - 1:
+            kl_divergence =  np.sum(P * np.log(np.maximum(P, 1e-16) / np.maximum(Q, 1e-16)))
+        else:
+            kl_divergence = np.nan
+
         # compute gradient(Cost func.)
         PQd = (P - Q) * nominator
+        
+        
         for j in np.arange(0, y.shape[0]):
             grad[j] =  np.dot(PQd[j], y[j] - y)      
         grad *= 4 
@@ -123,10 +133,10 @@ def gredient_decent(y, P, n_iter, n_iter_without_progress=300, momentum=0.5, lea
         grad_norm = np.sqrt(np.sum(grad**2))
         if grad_norm < min_grad_norm:
             break;
-    return y
+    return y, i, kl_divergence
 
 
-def TSNE(X, n_components = 2, perplexity = 30, n_iter = 250, learning_rate = 200, momentum = 0):
+def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 200, early_exaggeration=4.0):
     n_samples = X.shape[0]
     # compute distances between training samples
     start_time = time()
@@ -142,6 +152,16 @@ def TSNE(X, n_components = 2, perplexity = 30, n_iter = 250, learning_rate = 200
     #y = 1e-4 * np.random.randn(n_samples, n_components).astype(np.float32)
     y = np.load("y_ini.npy").reshape(n_samples, n_components)
     # use gradinet decent to find the solution    
-    y = gredient_decent(y = y, P = P, n_iter = n_iter)
-        
+    # first explore for n_iter = 250, momentum = 0.5, early_exaggeration = 4
+    n_exploration_iter = 250
+    P *= early_exaggeration
+    y, it, error = gredient_decent(y = y, P = P, it = 0, n_iter = n_exploration_iter, momentum = 0.5)
+    print("[t-SNE] KL divergence after %d iterations: %f"% (it + 1, error))
+    # Run remaining iteration with momentum = 0.5
+    remaining_iter = n_iter - n_exploration_iter
+    P /= early_exaggeration
+    if remaining_iter > 0:
+        y, it, error = gredient_decent(y = y, P = P, it = it + 1, n_iter = n_iter, momentum = 0.8)
+    print("[t-SNE] KL divergence after %d iterations: %f"% (it + 1, error))
+   
     return y
