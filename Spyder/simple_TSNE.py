@@ -7,6 +7,7 @@ Created on Mon Jul 13 12:16:03 2020
 import numpy as np
 import math
 from time import time
+import numbers
 """
 Compute distances between all dataset points
 
@@ -107,6 +108,7 @@ def compute_pairwise_joint_probabilities(distances, perplexity, n_iter = 100, mi
 def gredient_decent(y, P, it, n_iter, n_iter_without_progress=300, n_iter_check = 50, momentum=0.5, learning_rate=200.0, min_gain=0.01, min_grad_norm=1e-7):
     grad = np.zeros_like(y)
     update = np.zeros_like(y)
+    gains = np.ones_like(y)
     for i in np.arange(it, n_iter):
         # compute q(i,j)
         y_distances = compute_pairwise_distances(y, "euclidean", True) 
@@ -127,6 +129,13 @@ def gredient_decent(y, P, it, n_iter, n_iter_without_progress=300, n_iter_check 
         for j in np.arange(0, y.shape[0]):
             grad[j] =  np.dot(PQd[j], y[j] - y)      
         grad *= 4 
+        
+        gains[update * grad < 0.0] += 0.2
+        gains[update * grad > 0.0] *= 0.8
+        gains = np.minimum(gains, np.inf)
+        gains = np.maximum(min_gain, gains)
+        
+        grad *= gains
         # update solution y(i) = y(i-1) + learning_rate * gradient(Cost func.)
         update = update * momentum - learning_rate * grad 
         y = y + update 
@@ -136,21 +145,31 @@ def gredient_decent(y, P, it, n_iter, n_iter_without_progress=300, n_iter_check 
     return y, i, kl_divergence
 
 
-def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 200, early_exaggeration=4.0):
+def check_random_state(seed):
+    if seed is None or seed is np.random:
+        return np.random.mtrand._rand
+    if isinstance(seed, numbers.Integral):
+        return np.random.RandomState(seed)
+    if isinstance(seed, np.random.RandomState):
+        return seed
+    raise ValueError('%r cannot be used to seed a numpy.random.RandomState'
+                     ' instance' % seed)
+
+def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 200, early_exaggeration=4.0, random_state = None):
     n_samples = X.shape[0]
     # compute distances between training samples
     start_time = time()
     distances = compute_pairwise_distances(X, "euclidean", True)   
     elapsed_time = time() - start_time
+    random_state = check_random_state(random_state)
     #print("The execution of compute_pairwise_distances() simple t-SNE last for ", elapsed_time, "s") 
     # compute pairwise affinities p(j|i) whith perplexity Perp
     start_time = time()
     P = compute_pairwise_joint_probabilities(distances, perplexity)
     elapsed_time = time() - start_time
-    #print("The execution of compute_pairwise_joint_probabilities() simple t-SNE last for ", elapsed_time, "s") 
+    print("The execution of compute_pairwise_joint_probabilities() simple t-SNE last for ", elapsed_time, "s") 
     # sample init y from Gauss ~ N(0, 10^(-4)*I)
-    #y = 1e-4 * np.random.randn(n_samples, n_components).astype(np.float32)
-    y = np.load("y_ini.npy").reshape(n_samples, n_components)
+    y = 1e-4 * random_state.randn(n_samples, n_components).astype(np.float32)
     # use gradinet decent to find the solution    
     # first explore for n_iter = 250, momentum = 0.5, early_exaggeration = 4
     n_exploration_iter = 250
