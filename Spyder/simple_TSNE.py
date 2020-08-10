@@ -155,19 +155,31 @@ def check_random_state(seed):
     raise ValueError('%r cannot be used to seed a numpy.random.RandomState'
                      ' instance' % seed)
 
-def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 200, early_exaggeration=4.0, random_state = None):
+def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 200, early_exaggeration=4.0, method = "exact", random_state = None, verbose = 0):
     n_samples = X.shape[0]
     # compute distances between training samples
-    start_time = time()
-    distances = compute_pairwise_distances(X, "euclidean", True)   
+    start_time = time()  
     elapsed_time = time() - start_time
     random_state = check_random_state(random_state)
     #print("The execution of compute_pairwise_distances() simple t-SNE last for ", elapsed_time, "s") 
     # compute pairwise affinities p(j|i) whith perplexity Perp
-    start_time = time()
+    #start_time = time()
+    if method == "exact":
+        distances = compute_pairwise_distances(X, "euclidean", True) 
+    else:
+        # make NearestNeighbors graph
+        
+        # Compute the number of nearest neighbors to find.
+        # LvdM uses 3 * perplexity as the number of neighbors.
+        # In the event that we have very small # of points
+        # set the neighbors to n - 1.
+        n_neighbors = min(n_samples - 1, int(3. * perplexity + 1))
+        
+        # compute distances
+    
     P = compute_pairwise_joint_probabilities(distances, perplexity)
-    elapsed_time = time() - start_time
-    print("The execution of compute_pairwise_joint_probabilities() simple t-SNE last for ", elapsed_time, "s") 
+    #elapsed_time = time() - start_time
+    #print("The execution of compute_pairwise_joint_probabilities() simple t-SNE last for ", elapsed_time, "s") 
     # sample init y from Gauss ~ N(0, 10^(-4)*I)
     y = 1e-4 * random_state.randn(n_samples, n_components).astype(np.float32)
     # use gradinet decent to find the solution    
@@ -175,12 +187,14 @@ def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 20
     n_exploration_iter = 250
     P *= early_exaggeration
     y, it, error = gredient_decent(y = y, P = P, it = 0, n_iter = n_exploration_iter, momentum = 0.5)
-    print("[t-SNE] KL divergence after %d iterations: %f"% (it + 1, error))
+    if verbose == 1:
+        print("[t-SNE] KL divergence after %d iterations: %f"% (it + 1, error))
     # Run remaining iteration with momentum = 0.5
     remaining_iter = n_iter - n_exploration_iter
     P /= early_exaggeration
     if remaining_iter > 0:
         y, it, error = gredient_decent(y = y, P = P, it = it + 1, n_iter = n_iter, momentum = 0.8)
-    print("[t-SNE] KL divergence after %d iterations: %f"% (it + 1, error))
+    if verbose == 1:
+        print("[t-SNE] KL divergence after %d iterations: %f"% (it + 1, error))
    
     return y
