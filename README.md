@@ -13,3 +13,5 @@ adaptive learning_rate update:<br/>
 https://web.cs.umass.edu/publication/docs/1987/UM-CS-1987-117.pdf<br/>
 if gain(t)gain(t-1) > 0 -> deviative has same direction -> error fcn slope low -> higher learning_rate<br/>
 if gain(t)gain(t-1) < 0 -> deviative has altering direction -> error fcn slope high -> lower learning_rate<br/>
+Barnes-Hut aproximation in t-SNE:<br/>
+https://arxiv.org/pdf/1301.3342.pdf
