@@ -13,3 +13,11 @@ adaptive learning_rate update:<br/>
 https://web.cs.umass.edu/publication/docs/1987/UM-CS-1987-117.pdf<br/>
 if gain(t)gain(t-1) > 0 -> deviative has same direction -> error fcn slope low -> higher learning_rate<br/>
 if gain(t)gain(t-1) < 0 -> deviative has altering direction -> error fcn slope high -> lower learning_rate<br/>
+KD tree:<br/>
+https://upcommons.upc.edu/bitstream/handle/2117/76382/hpgm_15_1.pdf<br/>
+https://github.com/scikit-learn/scikit-learn/blob/67cbaefcffe8b094f1996336f3bfcc565ccde514/sklearn/neighbors/binary_tree.pxi<br/>
+https://github.com/scipy/scipy/blob/v1.5.2/scipy/spatial/kdtree.py#L182-L945<br/>
+https://arxiv.org/pdf/cs/9901013.pdf (sliding split point)<br>
+https://en.wikipedia.org/wiki/K-d_tree (wiki)<br>
+Neighbors Heap:<br>
+https://www.hackerearth.com/practice/notes/heaps-and-priority-queues/<br>

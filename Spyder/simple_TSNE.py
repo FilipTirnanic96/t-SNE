@@ -8,6 +8,7 @@ import numpy as np
 import math
 from time import time
 import numbers
+import kd_tree
 """
 Compute distances between all dataset points
 
@@ -174,6 +175,8 @@ def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 20
         # In the event that we have very small # of points
         # set the neighbors to n - 1.
         n_neighbors = min(n_samples - 1, int(3. * perplexity + 1))
+        kdTree = kd_tree.KDTree(X)
+        dist, ind = kdTree.query(X, k = n_neighbors)
         
         # compute distances
     
