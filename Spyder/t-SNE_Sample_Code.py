@@ -9,19 +9,19 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 from time import time
-import simple_TSNE
-
+import tsne
 from sklearn.manifold import TSNE
 
 np.random.seed(50)
-num_class_1 = 200
-num_class_2 = 200
+num_class_1 = 50
+num_class_2 = 50
 
 # first class Gauss 2d
 mean1 = np.array([1,1])
 cov1 =  np.array([[1, 0.2],[0.2, 1]])
 X1 = np.random.multivariate_normal(mean1, cov1, num_class_1)
 y1 = np.zeros((num_class_1))
+
 # second class Gauss 2d
 mean2 = np.array([10,1])
 cov2 =  np.array([[0.1, 0],[0, 0.1]])
@@ -40,8 +40,7 @@ plt.show()
 # execute t-SNE
 X = np.concatenate((X1, X2), axis = 0)
 y = np.concatenate((y1, y2), axis = 0)
-#t_SNE = TSNE(n_components = 2, n_iter = 1000, perplexity = 50, early_exaggeration = 1, method="exact", verbose = 1, random_state = 1)
-t_SNE = TSNE(n_components = 2, n_iter = 1000, perplexity = 50, early_exaggeration = 1, verbose = 1, random_state = 1)
+t_SNE = TSNE(n_components = 2, n_iter = 800, method = "barnes_hut", perplexity = 30, early_exaggeration = 4, verbose = 1, random_state = 1)
 start_time = time()
 X_trans_t = t_SNE.fit_transform(X)
 elapsed_time = time() - start_time
@@ -57,9 +56,8 @@ plt.show()
 
 
 
-
 start_time = time()
-X_trans = simple_TSNE.TSNE(X, n_components = 2, perplexity = 50, n_iter = 1000, early_exaggeration = 1, random_state = 1, verbose = 1)
+X_trans = tsne.TSNE(X, n_components = 2, perplexity = 30, n_iter = 800, early_exaggeration = 4, method = "barnes_hut", random_state = 1, verbose = 1)
 elapsed_time = time() - start_time
 print("The execution of simple t-SNE last for ", elapsed_time, "s")
 

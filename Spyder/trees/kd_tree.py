@@ -8,10 +8,6 @@ Created on Sun Aug  9 18:30:04 2020
 import numpy as np
 import matplotlib.pyplot as plt
 from time import time
-#from . import NeighborsHeap
-from sklearn.neighbors import DistanceMetric
-from sklearn.metrics import pairwise_distances
-
 
 class NeighborsHeap:
     
@@ -31,8 +27,8 @@ class NeighborsHeap:
     def push(self, row, val, i_val):
         
         size = self.distances.shape[1]
-        dist_arr = self.distances[row, :]
-        ind_arr = self.indices[row, :]
+        dist_arr = self.distances[row]
+        ind_arr = self.indices[row]
 
         # check if val should be in heap
         if val > dist_arr[0]:
@@ -77,40 +73,14 @@ class NeighborsHeap:
     
     def _sort(self):
         for row in np.arange(0, self.distances.shape[0]):
-            sorted_idxs = np.argsort(self.distances[row, :])
-            self.distances[row, :] = self.distances[row, sorted_idxs]
-            self.indices[row, :] = self.indices[row, sorted_idxs]
+            sorted_idxs = np.argsort(self.distances[row])
+            self.distances[row] = self.distances[row, sorted_idxs]
+            self.indices[row] = self.indices[row, sorted_idxs]
         return 0
     
     def largest(self, point_index):
         return self.distances[point_index, 0]
 
-
-def compute_pairwise_distances(X, metric, squared):
-    """  dist(x, y) = sqrt(dot(x, x) - 2 * dot(x, y) + dot(y, y)) - much faster"""
-    n_samples = X.shape[0]
-    if (metric == "euclidean") :
-        distance = np.zeros((n_samples, n_samples))
-        ''' if(squared):
-            XX = np.sum(X**2, axis = 1)[:,np.newaxis]
-            YY = XX.T
-            distance = XX - 2*np.dot(X,X.T) + YY
-        else:
-            XX = np.sum(X**2, axis = 1)[:,np.newaxis]
-            YY = XX.T
-            distance = np.sqrt(XX - 2*np.dot(X,X.T) + YY)
-            '''
-        if(squared):
-            for i in np.arange(0, n_samples):
-                distance[i,:] = np.sum((X - X[i, :])**2, axis = 1)
-        else:
-            for i in np.arange(0, n_samples):
-                 distance[i,:] = np.sqrt(np.sum((X - X[i, :])**2, axis = 1))
-                 
-        return distance
-
-    else:
-        raise ValueError("Incorrect type of metric.")
         
 def swap(arr, ind1, ind2):
         tmp = arr[ind1]
@@ -140,32 +110,26 @@ class KDTree():
             self.p = p
            
             
-    def __init__(self, data, leaf_size=40, metric= 'minkowski'):
+    def __init__(self, data, leaf_size=40):
         self.data = np.asarray(data)
 
         self.n_samples, self.n_features = np.shape(self.data)
         self.leaf_size = int(leaf_size)
-        if metric == 'minkowski': 
-            self.dist_metric.metric = metric
-            self.dist_metric.p = 2
-        else:
-            self.dist_metric.metric = metric
-            self.dist_metric.p = 2
+        self.dist_metric = self.dist_metric('euclidian', 2)
          
         if self.leaf_size < 1:
             raise ValueError("leafsize must be at least 1")
         
         # set number of levels of kd-tree
-        # set number of nodes of kd-tree
         self.n_levels = int(np.log2(max(1, (self.n_samples - 1) / self.leaf_size))) + 1
+        # set number of nodes of kd-tree
         self.n_nodes = (2 ** self.n_levels) - 1
       
         # allocate index array and node data
         self.idx_array = np.arange(self.n_samples)
-        start = time()
+        # init node data
         self.node_data = [self.Node() for i in range(self.n_nodes)]
-        end = time() - start
-        print("partition_node_indices:",end)
+
         # allocate node boundes
         self.node_bounds = np.zeros((2, self.n_nodes, self.n_features))       
         self.__build(0, 0, self.n_samples)
@@ -208,13 +172,10 @@ class KDTree():
             # find feature for split
             self.node_data[i_node].is_leaf = False
             j_max = self.find_node_split_feature(self.data, node_idx_array, self.n_features)
-            # j_max = 0
-            # divide indices by meadian in 2 groups
             
+            # divide indices by meadian in 2 groups            
             self.partition_node_indices(self.data, node_idx_array, j_max, n_mid)
-            
-            # print("partition_node_indices:",end)
-    
+        
             self.node_data[i_node].feature_split = j_max
             self.node_data[i_node].index_split = node_idx_array[n_mid]
             
@@ -349,11 +310,6 @@ class KDTree():
                 
         return 0
     
-    
-    
-    
-    
-    
     def min_rdist(self, i_node, point):
         ''' 
         if point is inside node area -> distance = 0, else calculate distance(point, area)**p
@@ -403,34 +359,9 @@ def visualize_tree_bounds(data, node_bounds, node_data):
                          i_node_lower_bounds[1]])
         plt.show()
   
-def partition_node_indices(data, node_indices, split_dim, split_index):
-        left = 0
-        right = node_indices.shape[0] - 1
-    
-        while True:
-            midindex = left
-            for i in range(left, right):
-                d1 = data[node_indices[i], split_dim]
-                d2 = data[node_indices[right], split_dim]
-                if d1 < d2:
-                    # swap
-                    swap(node_indices, i, midindex)
-                    midindex += 1
-            #swap
-            swap(node_indices, midindex, right)
-            if midindex == split_index:
-                break
-            elif midindex < split_index:
-                left = midindex + 1
-            else:
-                right = midindex - 1
-    
-        return 0    
-    
-
-from sklearn.neighbors import _kd_tree
 
 if __name__ == "__main__":
+    from sklearn.neighbors import _kd_tree
     np.random.seed(50)
     num_class = 5000
     mean = np.array([1,1])
@@ -442,13 +373,13 @@ if __name__ == "__main__":
     plt.plot(X[:,0], X[:,1], 'ro')
     
     start = time()
-    kd_tree1 = KDTree(X, leaf_size=40)
+    kd_tree2 = KDTree(X, leaf_size=40)
     end = time() - start
     print("kd_tree:",end)
     
-    kd_tree1.visualize_bounds()
+    kd_tree2.visualize_bounds()
     start = time()
-    dist, ind = kd_tree1.query(X, k = 60, sort_results = False)
+    dist, ind = kd_tree2.query(X, k = 60, sort_results = False)
     end1 = time() - start
     print("query:",end1)
     
@@ -461,12 +392,8 @@ if __name__ == "__main__":
     end2 = time() - start
     print("query1:",end2)
     print("q/q1", end1/end2)
-    start = time()
-    distances = compute_pairwise_distances(X, "euclidean", True) 
-    end = time() - start
-    print("compute_pairwise_distances:",end)
     
     data, index, node_data, node_bounds = kd_tree_1.get_arrays()
     visualize_tree_bounds(data, node_bounds, node_data)
-    print(1)
+
     
