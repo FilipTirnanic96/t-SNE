@@ -2,19 +2,17 @@
 """
 Created on Mon Jul 13 11:00:20 2020
 
-@author: uic52421
+@author: Filip
 """
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
 from time import time
 import tsne
 from sklearn.manifold import TSNE
 
 np.random.seed(50)
-num_class_1 = 50
-num_class_2 = 50
+num_class_1 = 100
+num_class_2 = 100
 
 # first class Gauss 2d
 mean1 = np.array([1,1])
@@ -40,7 +38,7 @@ plt.show()
 # execute t-SNE
 X = np.concatenate((X1, X2), axis = 0)
 y = np.concatenate((y1, y2), axis = 0)
-t_SNE = TSNE(n_components = 2, n_iter = 800, method = "barnes_hut", perplexity = 30, early_exaggeration = 4, verbose = 1, random_state = 1)
+t_SNE = TSNE(n_components = 2, n_iter = 1000, method = "barnes_hut", perplexity = 30, early_exaggeration = 1, verbose = 1, random_state = 1)
 start_time = time()
 X_trans_t = t_SNE.fit_transform(X)
 elapsed_time = time() - start_time
@@ -57,7 +55,7 @@ plt.show()
 
 
 start_time = time()
-X_trans = tsne.TSNE(X, n_components = 2, perplexity = 30, n_iter = 800, early_exaggeration = 4, method = "barnes_hut", random_state = 1, verbose = 1)
+X_trans = tsne.TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, early_exaggeration = 1, method = "barnes_hut", random_state = 1, verbose = 1)
 elapsed_time = time() - start_time
 print("The execution of simple t-SNE last for ", elapsed_time, "s")
 

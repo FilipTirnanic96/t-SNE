@@ -5,7 +5,6 @@ Created on Sat Aug 22 18:05:48 2020
 @author: Filip
 """
 import numpy as np
-from sklearn.neighbors._quad_tree import _QuadTree
 from trees.quad_tree import QuadTree
 
 FLOAT64_EPS = np.finfo(np.float64).eps

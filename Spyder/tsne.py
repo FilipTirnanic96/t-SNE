@@ -2,30 +2,15 @@
 """
 Created on Mon Jul 13 12:16:03 2020
 
-@author: uic52421
+@author: Filip
 """
 import numpy as np
 import math
-from time import time
 import numbers
-#import kd_tree
 from scipy.sparse import csr_matrix
 from trees.kd_tree import KDTree
 from barnes_hut_tsne import gradient
-"""
-Compute distances between all dataset points
 
-Parameters
-----------
-X : array, shape (n_samples* n_features)
-metric: string
-squared: boolean
-
-Returns
--------
-distances : array, shape (n_samples * (n_samples-1) / 2,)
-        Condensed joint probability matrix.
-"""
 
 EPSILON = np.finfo(np.double).eps
   
@@ -42,6 +27,8 @@ def compute_pairwise_distances(X, metric, squared):
             XX = np.sum(X**2, axis = 1)[:,np.newaxis]
             YY = XX.T
             distance = np.sqrt(XX - 2*np.dot(X,X.T) + YY)
+            
+        #np.fill_diagonal(distance, 0)
         return distance
 
     else:
@@ -83,6 +70,7 @@ def binary_search_perplexity(distances, perplexity):
 
             #calculate current entropy
             entropy =  - np.sum(P_conditional[i] * np.log2(P_conditional[i] + 1e-10))
+
             entropy_diff = entropy - goal_entropy
             
             if np.abs(entropy_diff) < min_error_preplexity:
@@ -111,11 +99,9 @@ def binary_search_perplexity(distances, perplexity):
 def compute_pairwise_joint_probabilities(distances, perplexity):
     distances = distances.astype(np.float32, copy=False)
     P_conditional = binary_search_perplexity(distances, perplexity)
-    
     P = P_conditional + P_conditional.T
     sum_P = np.maximum(np.sum(P), EPSILON)
     P = np.maximum(P / sum_P, EPSILON)
-    
     np.fill_diagonal(P, 0)
     return P
    
@@ -124,7 +110,7 @@ def compute_pairwise_joint_probabilities_nn(distances_csr, perplexity):
     
     distances_csr.sort_indices()
     distances = distances_csr.data.reshape(n_samples, -1)
-    #distances = distances
+    distances = distances.astype(np.float32, copy=False)
     P_conditional = binary_search_perplexity(distances, perplexity) 
     
     P = csr_matrix((P_conditional.ravel(), distances_csr.indices, distances_csr.indptr), shape=(n_samples, n_samples))
@@ -136,7 +122,7 @@ def compute_pairwise_joint_probabilities_nn(distances_csr, perplexity):
     return P
 
   
-def gredient_decent(y, P, it, n_iter, n_iter_without_progress=300, n_iter_check = 50, momentum=0.5, learning_rate=200.0, min_gain=0.01, min_grad_norm=1e-7, method = 'exact'):
+def gredient_decent(y, P, it, n_iter, n_iter_without_progress=300, n_iter_check = 50, momentum=0.5, learning_rate=200.0, min_gain=0.01, min_grad_norm=1e-7, method = 'exact', angle=0.5):
     update = np.zeros_like(y)
     gains = np.ones_like(y)
     for i in np.arange(it, n_iter):
@@ -144,7 +130,7 @@ def gredient_decent(y, P, it, n_iter, n_iter_without_progress=300, n_iter_check 
         if(method == 'exact'):
             kl_divergence, grad = kl_divergence_grad(y, P, n_iter, n_iter_check, i)
         else:
-            kl_divergence, grad = kl_divergence_bh_grad(y, P, y.shape[0], y.shape[1])
+            kl_divergence, grad = kl_divergence_bh_grad(y, P, y.shape[0], y.shape[1], angle)
         # adaptive learning rate  
         gains[update * grad < 0.0] += 0.2
         gains[update * grad >= 0.0] *= 0.8
@@ -217,7 +203,7 @@ def check_random_state(seed):
                      ' instance' % seed)
 
 
-def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 200, early_exaggeration=4.0, method = "exact", random_state = None, verbose = 0):
+def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 200, early_exaggeration=4.0, method = "exact", random_state = None, verbose = 0, angle=0.5):
     n_samples = X.shape[0]
     metric = "euclidean"
     
@@ -229,6 +215,8 @@ def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 20
         distances = compute_pairwise_distances(X, "euclidean", True)
         P = compute_pairwise_joint_probabilities(distances, perplexity)
     elif method == "barnes_hut":
+        if(n_components!=2):
+            raise ValueError("If selected method is 'barnes_hut' number of dimensions should be 2.")
         # make NearestNeighbors graph
         
         # Compute the number of nearest neighbors to find.
@@ -269,14 +257,14 @@ def TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, learning_rate = 20
     # first explore for n_iter = 250, momentum = 0.5, early_exaggeration = 4
     n_exploration_iter = 250
     P *= early_exaggeration
-    y, it, error = gredient_decent(y = y, P = P, it = 0, n_iter = n_exploration_iter, momentum = 0.5, method = method)
+    y, it, error = gredient_decent(y = y, P = P, it = 0, n_iter = n_exploration_iter, momentum = 0.5, method = method, angle = angle)
     if verbose == 1:
         print("[t-SNE] KL divergence after",it + 1, "iterations:", error)
     # Run remaining iteration with momentum = 0.8
     remaining_iter = n_iter - n_exploration_iter
     P /= early_exaggeration
     if remaining_iter > 0:
-        y, it, error = gredient_decent(y = y, P = P, it = it + 1, n_iter = n_iter, momentum = 0.8, method = method)
+        y, it, error = gredient_decent(y = y, P = P, it = it + 1, n_iter = n_iter, momentum = 0.8, method = method, angle = angle)
     if verbose == 1:
         print("[t-SNE] KL divergence after",it + 1, "iterations:", error)
    

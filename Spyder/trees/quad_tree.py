@@ -6,7 +6,6 @@ Created on Mon Aug 24 14:31:26 2020
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from time import time
 
 class QuadTree:
     
@@ -176,11 +175,11 @@ class QuadTree:
         else:
             raise ValueError("Query point not in the Tree.")
 
-    def summarize(self, point, squared_theta):
-        results = np.zeros((self.n_points, self.n_dimensions + 2))
+    def summarize(self, point, squared_theta):      
+        results = np.zeros((self.n_points, self.n_dimensions + 2))       
         index = self._summarize(point, results, squared_theta) 
         return results[0:index, :]
-
+    
     def _summarize(self, point, results, squared_theta = 0.5, cell_id = 0, index = 0):
         cur_cell = self.cells[cell_id]
         # calculate point_i - cell_points_mean
@@ -207,11 +206,13 @@ class QuadTree:
                     index = self._summarize(point, results, squared_theta, child_id, index)
         
         return index
-     
+
+
     def visualize_bounds(self):
-        plt.title("Quad-tree")
+        
+        plt.title("Quad stablo")
         plt.xlabel("x1")
-        plt.xlabel("x2")
+        plt.ylabel("x2")
         for cell in self.cells:
             i_node_lower_bounds = cell.min_bounds
             i_node_upper_bounds = cell.max_bounds
@@ -220,7 +221,7 @@ class QuadTree:
                 plt.plot([i_node_lower_bounds[0], i_node_upper_bounds[0], i_node_upper_bounds[0], i_node_lower_bounds[0], 
                           i_node_lower_bounds[0]], 
                         [i_node_lower_bounds[1], i_node_lower_bounds[1], i_node_upper_bounds[1], i_node_upper_bounds[1], 
-                         i_node_lower_bounds[1]])
+                         i_node_lower_bounds[1]], 'k')
             else:
                 plt.plot([i_node_lower_bounds[0], i_node_upper_bounds[0], i_node_upper_bounds[0], i_node_lower_bounds[0], 
                           i_node_lower_bounds[0]], 
@@ -233,47 +234,4 @@ class QuadTree:
     
     def get_leaf_list(self):
         return [cell.is_leaf for cell in self.cells]
-    
-if __name__ == "__main__":   
-    import quad_tree1     
-    from sklearn.neighbors._quad_tree import _QuadTree
-    np.random.seed(50)
-    num_class = 20
-    mean = np.array([1,1])
-    cov =  np.array([[1, 0.2],[0.2, 1]])
-    X = np.random.multivariate_normal(mean, cov, num_class).astype(np.float32)           
-    
-    plt.plot(X[:,0], X[:,1], 'ro')   
-    
-    qt = QuadTree()
-    
-    start = time()
-    qt.build_tree(X)
-    end1 = time() - start   
-    
-    qt.visualize_bounds()       
-    qt1 = _QuadTree(X.shape[1],verbose = 1)
-    
-    start = time()
-    qt1.build_tree(X) 
-    end2 = time() - start 
-    
-    start = time()
-    results = qt.summarize(X[0,:], 0.25)  
-    end3 = time() - start
-    
-    theta = 0.5     
-    point = X[0] 
-    
-    start = time()
-    idx, summary = quad_tree1._py_summarize(qt1, point, X, theta)
-    end4 = time() - start
-    
-    summary = summary[0:idx]
-    sumary = summary.reshape((-1, 4))     
-    
-    c_list = qt.get_cumulative_size_list()
-    c_list1 = qt1.cumulative_size
-    
-    l_list = qt.get_leaf_list()
-    l_list1 = qt1.leafs
+

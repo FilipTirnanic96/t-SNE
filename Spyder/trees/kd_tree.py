@@ -327,9 +327,9 @@ class KDTree():
         if self.data.shape[1] > 2:
             raise ValueError("Bounds can be visualize just for 2 D data")
         plt.plot(self.data[:,0], self.data[:,1], 'ro')
-        plt.title("KD-tree")
+        plt.title("K-d stablo")
         plt.xlabel("x1")
-        plt.xlabel("x2")
+        plt.ylabel("x2")
         for i_node in np.arange(0, self.node_bounds.shape[1]):
             i_node_lower_bounds = self.node_bounds[0, i_node, :]
             i_node_upper_bounds = self.node_bounds[1, i_node, :]
@@ -348,7 +348,7 @@ def visualize_tree_bounds(data, node_bounds, node_data):
         plt.plot(data[:,0], data[:,1], 'ro')
         plt.title("KD-tree -scikitlearn")
         plt.xlabel("x1")
-        plt.xlabel("x2")
+        plt.ylabel("x2")
         for i_node in np.arange(0, node_bounds.shape[1]):
             i_node_lower_bounds = node_bounds[0, i_node, :]
             i_node_upper_bounds = node_bounds[1, i_node, :]
@@ -359,41 +359,5 @@ def visualize_tree_bounds(data, node_bounds, node_data):
                          i_node_lower_bounds[1]])
         plt.show()
   
-
-if __name__ == "__main__":
-    from sklearn.neighbors import _kd_tree
-    np.random.seed(50)
-    num_class = 5000
-    mean = np.array([1,1])
-    cov =  np.array([[1, 0.2],[0.2, 1]])
-    X = np.random.multivariate_normal(mean, cov, num_class)
-    index_arr = np.array([1, 2, 3 , 4])
-    arr = np.array([5, 2, 1, 6, 7 , 9, 18, 1]).reshape(-1,1)
-
-    plt.plot(X[:,0], X[:,1], 'ro')
-    
-    start = time()
-    kd_tree2 = KDTree(X, leaf_size=40)
-    end = time() - start
-    print("kd_tree:",end)
-    
-    kd_tree2.visualize_bounds()
-    start = time()
-    dist, ind = kd_tree2.query(X, k = 60, sort_results = False)
-    end1 = time() - start
-    print("query:",end1)
-    
-    start = time()
-    kd_tree_1 = _kd_tree.KDTree(X, leaf_size=40)
-    end = time() - start
-    print("kd_tree1:",end)
-    start = time()
-    dist1, ind1 = kd_tree_1.query(X, k = 60, sort_results = False)
-    end2 = time() - start
-    print("query1:",end2)
-    print("q/q1", end1/end2)
-    
-    data, index, node_data, node_bounds = kd_tree_1.get_arrays()
-    visualize_tree_bounds(data, node_bounds, node_data)
 
     
