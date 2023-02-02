@@ -55,7 +55,7 @@ plt.show()
 
 
 start_time = time()
-X_trans = tsne.TSNE(X, n_components = 2, perplexity = 30, n_iter = 1000, early_exaggeration = 1, method = "barnes_hut", random_state = 1, verbose = 1)
+X_trans = tsne.TSNE(X, perplexity = 30, n_iter = 1000, early_exaggeration = 1, method = "barnes_hut", random_state = 1, verbose = 1)
 elapsed_time = time() - start_time
 print("The execution of simple t-SNE last for ", elapsed_time, "s")
 

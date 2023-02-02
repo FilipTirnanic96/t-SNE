@@ -4,12 +4,14 @@ Created on Mon Aug 24 14:31:26 2020
 
 @author: Filip
 """
+from time import time
+
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class QuadTree:
-    
-    
+
     class Cell:
         
         def __init__(self, parent_id, cell_id, depth):
@@ -42,11 +44,8 @@ class QuadTree:
         maxX = np.maximum(maxX * (1. + 1e-3 * np.sign(maxX)), maxX + 1e-3)
         self.init_root(minX, maxX)
         
-        for i in range(n_samples):
-            point = X[i]
-            self.insert_point(point, i, 0)
-            
-        
+        [self.insert_point(X[i], i, 0) for i in range(n_samples)]
+
     def init_root(self, min_bounds, max_bounds):
         
         root_cell = self.Cell(-1, 0, 0)        
@@ -60,14 +59,12 @@ class QuadTree:
         self.cells.append(root_cell)    
         self.cell_count += 1
         return 0
-        
-    
-    
+
     def insert_point(self, point, point_index, cell_id):
 
         cell = self.cells[cell_id]
         cell_n_points = cell.cumulative_size
-        # if cell is empthy leaf insert point in cell
+        # if cell is empty leaf insert point in cell
         if cell.cumulative_size == 0:
             
             cell.cumulative_size += 1 
@@ -85,7 +82,7 @@ class QuadTree:
             # update cumulative cell size
             cell.cumulative_size += 1
             selected_child = self._select_child(point, cell)            
-            if selected_child == None:
+            if selected_child is None:
                 self.n_points += 1
                 return self._insert_point_in_new_child(point, point_index, cell)
             
@@ -93,8 +90,8 @@ class QuadTree:
         
         # if cell is leaf and point is already inserted update num of point in that cell
         if self._is_duplicate(cell.masscenter, point):
-            cell.cumulative_size+=1
-            self.n_points +=1
+            cell.cumulative_size += 1
+            self.n_points += 1
             return cell_id
         
         # In a leaf, the masscenter correspond to the only point included in current leaf cell.
@@ -107,17 +104,15 @@ class QuadTree:
         selected_child_id = 0
                      
         for i in range(self.n_dimensions):
-            selected_child_id *=2
+            selected_child_id *= 2
             if point[i] >= cell.center[i]:
                 selected_child_id += 1
         
         return cell.children[selected_child_id]
-    
-        
+
     def _is_duplicate(self, point1, point2):
-        return (abs(point1[0] - point2[0]) < self.eps and abs(point1[1] - point2[1]) < self.eps)
-     
-       
+        return abs(point1[0] - point2[0]) < self.eps and abs(point1[1] - point2[1]) < self.eps
+
     def _insert_point_in_new_child(self, point, point_index, cell): 
         cell_id = self.cell_count
         self.cell_count += 1
@@ -125,7 +120,7 @@ class QuadTree:
         child = self.Cell(cell.cell_id, cell_id, cell.depth + 1)
         self.cells.append(child)
         
-        # find chid id (quadrant of a child)
+        # find child id (quadrant of a child)
         child_cell_id = 0
         for i in range(self.n_dimensions):
             child_cell_id *= 2
@@ -145,13 +140,11 @@ class QuadTree:
         # set center of the mass of cell
         child.masscenter = point
         child.squared_max_width = np.amax(width**2)
-        
-        
+
         # set prent is_leaf to False
         cell.is_leaf = False
         cell.point_index = -1
-        
-        
+
         child.point_index = point_index
         child.cumulative_size = 1
         
@@ -169,44 +162,40 @@ class QuadTree:
                 raise ValueError("Query point not in the Tree.")
                 
         selected_child = self._select_child(point, cur_cell)
-        if selected_child != None:            
+        if selected_child is not None:
             return self.get_cell(point, selected_child)
             
         else:
             raise ValueError("Query point not in the Tree.")
 
     def summarize(self, point, squared_theta):      
-        results = np.zeros((self.n_points, self.n_dimensions + 2))       
-        index = self._summarize(point, results, squared_theta) 
+        results = np.zeros((self.n_points, self.n_dimensions + 2))
+        index = self._summarize(point, results, squared_theta)
         return results[0:index, :]
     
     def _summarize(self, point, results, squared_theta = 0.5, cell_id = 0, index = 0):
+        # get current cell
         cur_cell = self.cells[cell_id]
         # calculate point_i - cell_points_mean
-        results[index, 0:2] = point - cur_cell.masscenter
-        # get eulidian distance euc(point_i - cell_points_mean)
-        results[index,2] = np.sum(results[index, 0:2]**2)
-
-        is_duplicate = (np.abs(results[index, 0]) < self.eps and np.abs(results[index, 1]) < self.eps)
+        point_distance = point - cur_cell.masscenter
+        # get euclidean distance euc(point_i - cell_points_mean)
+        point_distance_sq = point_distance[0]*point_distance[0] + point_distance[1]*point_distance[1]
         
-        # if we find the same point in leaf cell return
-        if is_duplicate and cur_cell.is_leaf:
-            return index
-        
-        # Check if we can use current node as summary of points in its sub tree
-        # Compare distances of point to the diagoanl of cell -> if it is less then theta**2 sub tree cells can be summerize with this cell
-        # else recursive call other childs of current cell
-        if cur_cell.is_leaf or ((cur_cell.squared_max_width / results[index, 2]) < squared_theta):
-            results[index,3] = cur_cell.cumulative_size
+        # Check if we can use current node as summary of points in its sub tree Compare distances of point to the
+        # diagonal of cell -> if it is less then theta**2 sub tree cells can be summerize with this cell else
+        # recursive call other children of current cell
+        if cur_cell.is_leaf or ((cur_cell.squared_max_width / point_distance_sq) < squared_theta):
+            results[index, 0:2] = point_distance
+            results[index, 2] = point_distance_sq
+            results[index, 3] = cur_cell.cumulative_size
             return index + 1
         else:
             for child in range(self.n_cells_per_cell):
                 child_id = cur_cell.children[child]
-                if child_id != None:
+                if child_id is not None:
                     index = self._summarize(point, results, squared_theta, child_id, index)
-        
-        return index
 
+        return index
 
     def visualize_bounds(self):
         

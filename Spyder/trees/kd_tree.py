@@ -9,13 +9,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from time import time
 
+
 class NeighborsHeap:
     
     def __init__(self, n_points, n_neighbors):
         self.distances = np.inf + np.zeros((n_points, n_neighbors))
         self.indices = np.zeros((n_points, n_neighbors), dtype = np.int64)
-        
-        
+
     def maximum_distance(self, row):
         return self.distances[row, 0]
     
@@ -87,8 +87,9 @@ def swap(arr, ind1, ind2):
         arr[ind1] = arr[ind2]
         arr[ind2] = tmp
         return arr   
-    
-class KDTree():
+
+
+class KDTree:
     
     # Node of kd -tree
     class Node:    
@@ -235,10 +236,11 @@ class KDTree():
     def rdist_to_dist(self, distances):
         return pow(distances, 1. / self.dist_metric.p)
     
-    def query(self, X, k=1, return_distance=True, breadth_first=False,  sort_results=True):
+    def query(self, X, k=1, sort_results=True):
         self.n_trims = 0
         self.n_leaves = 0
         self.n_splits = 0
+
         if len(X.shape) > 2:
             raise ValueError("query data0 must be 2D")
            
@@ -250,24 +252,20 @@ class KDTree():
         
         # init heat neighbours            
         heap = NeighborsHeap(X.shape[0], k)
-        if breadth_first:
-            '''for i in range(X.shape[0]):
-                self._query_single_breadthfirst(pt, i, heap, nodeheap)
-                pt += Xarr.shape[1]'''
-        else:
-            for i in range(X.shape[0]):
-                point = X[i,:]
-                reduced_dist_LB = self.min_rdist(0, point)
-                self.query_depthfirst(0, point, i, heap, reduced_dist_LB)
+
+        for i in range(X.shape[0]):
+            point = X[i,:]
+            reduced_dist_LB = self.min_rdist(0, point)
+            self.query_dfs(0, point, i, heap, reduced_dist_LB)
+
         distances, indices = heap.get_arrays(sort=sort_results)
         distances = self.rdist_to_dist(distances)
         return distances, indices
     
     def rdist(self, point, points):
         return np.sum(pow(points - point, self.dist_metric.p), axis = 1)
-        
-        
-    def query_depthfirst(self, i_node, point, index_point, heap, reduced_dst_from_bounds):
+
+    def query_dfs(self, i_node, point, index_point, heap, reduced_dst_from_bounds):
         node_i = self.node_data[i_node]
         
         # node is outise of node radius - > trim if from the query
@@ -301,12 +299,12 @@ class KDTree():
             
             # point is closer to child 1 recursively query subtree of child 1
             if reduced_dst_from_bounds_1 <= reduced_dst_from_bounds_2:
-                self.query_depthfirst(index_child_1, point, index_point, heap, reduced_dst_from_bounds_1)
-                self.query_depthfirst(index_child_2, point, index_point, heap, reduced_dst_from_bounds_2)
+                self.query_dfs(index_child_1, point, index_point, heap, reduced_dst_from_bounds_1)
+                self.query_dfs(index_child_2, point, index_point, heap, reduced_dst_from_bounds_2)
             # point is closer to child 1 recursively query subtree of child 2
             else:
-                self.query_depthfirst(index_child_2, point, index_point, heap, reduced_dst_from_bounds_2)
-                self.query_depthfirst(index_child_1, point, index_point, heap, reduced_dst_from_bounds_1)
+                self.query_dfs(index_child_2, point, index_point, heap, reduced_dst_from_bounds_2)
+                self.query_dfs(index_child_1, point, index_point, heap, reduced_dst_from_bounds_1)
                 
         return 0
     
