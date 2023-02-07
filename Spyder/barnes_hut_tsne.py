@@ -11,7 +11,7 @@ FLOAT64_EPS = np.finfo(np.float64).eps
 FLOAT32_TINY = np.finfo(np.float32).tiny
 
 
-def gradient(P, y, neighbors_idx, indptr_P, theta):
+def gradient(P: np.array, y: np.array, neighbors_idx: np.array, indptr_P: np.array, theta: float):
     """
     Computes gradient with barnes-hut algorithm.
 
@@ -34,7 +34,7 @@ def gradient(P, y, neighbors_idx, indptr_P, theta):
     return total_forse, error
 
 
-def negative_forces_gradient(y, qt, theta):
+def negative_forces_gradient(y: np.array, qt: QuadTree, theta: float):
     """
     Computes negative forces in barnes-hut algorithm.
 
@@ -69,7 +69,7 @@ def negative_forces_gradient(y, qt, theta):
     return negative_forces, sum_Q
 
 
-def positive_forces_gradient(P, y, neighbors_idx, indptr_P, sum_Q):
+def positive_forces_gradient(P: np.array, y: np.array, neighbors_idx: np.array, indptr_P, sum_Q: float):
     """
     Computes positive forces in barnes-hut algorithm.
 
