@@ -14,7 +14,7 @@ class QuadTree:
 
     class Cell:
         
-        def __init__(self, parent_id, cell_id, depth):
+        def __init__(self, parent_id: int, cell_id: int, depth: int):
             self.parent_id = parent_id
             self.cell_id = cell_id
             self.is_leaf = True
@@ -35,19 +35,33 @@ class QuadTree:
         self.n_points = 0
         self.cells = []     
         self.eps = 1e-6
-        
-    def build_tree(self, X):
-        
+
+    def build_tree(self, X: np.array):
+        """
+        Build quad tree from input data.
+
+        :param X: Input data
+        """
+
         n_samples = X.shape[0]
+        # find area of all data
         minX = np.min(X, axis=0)
         maxX = np.max(X, axis=0)
         maxX = np.maximum(maxX * (1. + 1e-3 * np.sign(maxX)), maxX + 1e-3)
+        # init tree root
         self.init_root(minX, maxX)
-        
+        # insert data in quad tree
         [self.insert_point(X[i], i, 0) for i in range(n_samples)]
 
-    def init_root(self, min_bounds, max_bounds):
-        
+    def init_root(self, min_bounds: float, max_bounds: float):
+        """
+        Initiate root of quad tree.
+
+        :param min_bounds: Minimum bounds data coordinates
+        :param max_bounds: Maximum bounds data coordinates
+        """
+
+        # create new cell and fill its values
         root_cell = self.Cell(-1, 0, 0)        
         root_cell.min_bounds = min_bounds
         root_cell.max_bounds = max_bounds
@@ -58,15 +72,22 @@ class QuadTree:
 
         self.cells.append(root_cell)    
         self.cell_count += 1
-        return 0
 
-    def insert_point(self, point, point_index, cell_id):
+    def insert_point(self, point: np.array, point_index: int, cell_id: int):
+        """
+        Insert data point into quad tree.
 
+        :param point: Data point to be inserted
+        :param point_index: Index of data point
+        :param cell_id: Current cell id
+        """
+
+        # get current cell
         cell = self.cells[cell_id]
         cell_n_points = cell.cumulative_size
         # if cell is empty leaf insert point in cell
         if cell.cumulative_size == 0:
-            
+            # update cell properties
             cell.cumulative_size += 1 
             self.n_points += 1
             cell.masscenter = point
@@ -81,11 +102,13 @@ class QuadTree:
             
             # update cumulative cell size
             cell.cumulative_size += 1
-            selected_child = self._select_child(point, cell)            
+            # select appropriate cell child
+            selected_child = self._select_child(point, cell)
+            # if selected child is none create new child
             if selected_child is None:
                 self.n_points += 1
                 return self._insert_point_in_new_child(point, point_index, cell)
-            
+            # recursively call insert_point function
             return self.insert_point(point, point_index, selected_child)
         
         # if cell is leaf and point is already inserted update num of point in that cell
@@ -94,15 +117,24 @@ class QuadTree:
             self.n_points += 1
             return cell_id
         
-        # In a leaf, the masscenter correspond to the only point included in current leaf cell.
-        # So push thah point in the child cell and then inser new point in childs
+        # In a leaf, the mass center correspond to the only point included in current leaf cell.
+        # So push that point in the child cell and then insert new point in children
         self._insert_point_in_new_child(cell.masscenter, cell.point_index, cell)
-        
+
+        # recursively call insert_point function
         return self.insert_point(point, point_index, cell_id)
         
-    def _select_child(self, point, cell):
+    def _select_child(self, point: np.array, cell: Cell):
+        """
+        Select appropriate child of cell for current point
+
+        :param point: Data point
+        :param cell: Quad tree cell
+        :return: Appropriate child cell
+        """
+
         selected_child_id = 0
-                     
+
         for i in range(self.n_dimensions):
             selected_child_id *= 2
             if point[i] >= cell.center[i]:
@@ -110,11 +142,29 @@ class QuadTree:
         
         return cell.children[selected_child_id]
 
-    def _is_duplicate(self, point1, point2):
+    def _is_duplicate(self, point1: np.array, point2: np.array):
+        """
+        Checks if point1 is same as point 2.
+
+        :param point1: Data point
+        :param point2: Data point
+        :return: Flag indication if points are the same
+        """
+
         return abs(point1[0] - point2[0]) < self.eps and abs(point1[1] - point2[1]) < self.eps
 
-    def _insert_point_in_new_child(self, point, point_index, cell): 
+    def _insert_point_in_new_child(self, point: np.array, point_index: int, cell: Cell):
+        """
+        Checks if point1 is same as point 2.
+
+        :param point: Data point
+        :param point_index: Index of data point
+        :param cell: Cell of quad tree
+        :return: Id of new cell
+        """
+
         cell_id = self.cell_count
+        # increase cell count for new child
         self.cell_count += 1
         # init new child
         child = self.Cell(cell.cell_id, cell_id, cell.depth + 1)
@@ -134,7 +184,7 @@ class QuadTree:
         
         # set center of child quadrant
         child.center = (child.min_bounds + child.max_bounds) / 2.
-        # calculate width of child quadran
+        # calculate width of child quadrant
         width = child.max_bounds - child.min_bounds
         
         # set center of the mass of cell
@@ -151,45 +201,47 @@ class QuadTree:
         # Store the child cell in the correct place in children
         cell.children[child_cell_id] = child.cell_id
 
-        return child.cell_id    
-    
-    def get_cell(self, point, cell_id = 0):
-        cur_cell = self.cells[cell_id]
-        if cur_cell.is_leaf:
-            if self._is_duplicate(cur_cell.masscenter, point):
-                return cell_id
-            else:
-                raise ValueError("Query point not in the Tree.")
-                
-        selected_child = self._select_child(point, cur_cell)
-        if selected_child is not None:
-            return self.get_cell(point, selected_child)
-            
-        else:
-            raise ValueError("Query point not in the Tree.")
+        return child.cell_id
 
-    def summarize(self, point, squared_theta):      
+    def summarize(self, point: np.array, squared_theta: float):
+        """
+        Calculate pairwise distances with barnes-hut method for one point.
+
+        :param point: Data point
+        :param squared_theta: Barnes-hut threshold
+        :return results: Results of barnes-hut summarization
+        """
         results = np.zeros((self.n_points, self.n_dimensions + 2))
         index = self._summarize(point, results, squared_theta)
         return results[0:index, :]
     
-    def _summarize(self, point, results, squared_theta = 0.5, cell_id = 0, index = 0):
+    def _summarize(self, point: np.array, results: np.array, squared_theta: float = 0.5, cell_id: int = 0, index: int = 0):
+        """
+        Calculate pairwise distances with barnes-hut method for one point.
+        Stores calculation in results array.
+
+        :param point: Data point
+        :param squared_theta: Barnes-hut threshold
+        :param cell_id: Quad tree cell id
+        :param index: Current index of valid result
+        :return index: Index of last valid result
+        """
+
         # get current cell
         cur_cell = self.cells[cell_id]
         # calculate point_i - cell_points_mean
         point_distance = point - cur_cell.masscenter
         # get euclidean distance euc(point_i - cell_points_mean)
         point_distance_sq = point_distance[0]*point_distance[0] + point_distance[1]*point_distance[1]
-        
-        # Check if we can use current node as summary of points in its sub tree Compare distances of point to the
-        # diagonal of cell -> if it is less then theta**2 sub tree cells can be summerize with this cell else
-        # recursive call other children of current cell
+
+        # Check if we can use current node as summary of points in its sub tree.
         if cur_cell.is_leaf or ((cur_cell.squared_max_width / point_distance_sq) < squared_theta):
             results[index, 0:2] = point_distance
             results[index, 2] = point_distance_sq
             results[index, 3] = cur_cell.cumulative_size
             return index + 1
         else:
+            # recursive call other children of current cell
             for child in range(self.n_cells_per_cell):
                 child_id = cur_cell.children[child]
                 if child_id is not None:
@@ -198,8 +250,11 @@ class QuadTree:
         return index
 
     def visualize_bounds(self):
-        
-        plt.title("Quad stablo")
+        """
+        Visualise bounds of quad tree.
+        """
+
+        plt.title("Quad tree")
         plt.xlabel("x1")
         plt.ylabel("x2")
         for cell in self.cells:
@@ -217,10 +272,4 @@ class QuadTree:
                         [i_node_lower_bounds[1], i_node_lower_bounds[1], i_node_upper_bounds[1], i_node_upper_bounds[1], 
                          i_node_lower_bounds[1]], 'k')              
         plt.show()
-    
-    def get_cumulative_size_list(self):
-        return [cell.cumulative_size for cell in self.cells]
-    
-    def get_leaf_list(self):
-        return [cell.is_leaf for cell in self.cells]
 
