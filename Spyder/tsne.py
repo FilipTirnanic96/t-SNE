@@ -14,8 +14,15 @@ from barnes_hut_tsne import gradient
 EPSILON = np.finfo(np.double).eps
 
 
-def compute_pairwise_distances(X, squared):
-    """  dist(x, y) = sqrt(dot(x, x) - 2 * dot(x, y) + dot(y, y)) - much faster"""
+def compute_pairwise_distances(X: np.array, squared: bool):
+    """
+    Compute pairwise distances of data from X.
+
+    :param X: Input data
+    :param squared: Flag if squared distances
+    :return: Pairwise distances
+    """
+
     if squared:
         XX = np.sum(X ** 2, axis=1)[:, np.newaxis]
         YY = XX.T
@@ -28,7 +35,33 @@ def compute_pairwise_distances(X, squared):
     return distance
 
 
-def binary_search_perplexity(distances, perplexity):
+def check_random_state(seed: int):
+    """
+    Checks the random seed.
+
+    :param seed: Seed number
+    :return: Random seed
+    """
+
+    if seed is None or seed is np.random:
+        return np.random.mtrand._rand
+    if isinstance(seed, numbers.Integral):
+        return np.random.RandomState(seed)
+    if isinstance(seed, np.random.RandomState):
+        return seed
+    raise ValueError('%r cannot be used to seed a numpy.random.RandomState'
+                     ' instance' % seed)
+
+
+def binary_search_perplexity(distances: np.array, perplexity: int):
+    """
+    Binary search each gaussian sigma for each point.
+
+    :param distances: Pairwise distances
+    :param perplexity: Input perplexity
+    :return: Conditional pairwise probabilities
+    """
+
     n_samples = distances.shape[0]
     n_neighbors = distances.shape[1]
     P_conditional = np.zeros((n_samples, n_neighbors))
@@ -84,7 +117,15 @@ def binary_search_perplexity(distances, perplexity):
     return P_conditional
 
 
-def compute_pairwise_joint_probabilities(distances, perplexity):
+def compute_pairwise_joint_probabilities(distances: np.array, perplexity: int):
+    """
+    Compute pairwise joint probabilities.
+
+    :param distances: Pairwise distances
+    :param perplexity: Input perplexity
+    :return: Pairwise joint probabilities
+    """
+
     # cast type distances array
     distances = distances.astype(np.float32, copy=False)
     # binary search pairwise affinities p_i|j with perplexity p
@@ -94,12 +135,21 @@ def compute_pairwise_joint_probabilities(distances, perplexity):
     # normalize p_ij
     sum_P = np.maximum(np.sum(P), EPSILON)
     P = np.maximum(P / sum_P, EPSILON)
+    # p_ii = 0
     np.fill_diagonal(P, 0)
 
     return P
 
 
-def compute_pairwise_joint_probabilities_nn(distances_csr, perplexity):
+def compute_pairwise_joint_probabilities_nn(distances_csr, perplexity: int):
+    """
+    Compute pairwise joint probabilities.
+
+    :param distances_csr: Pairwise distances
+    :param perplexity: Input perplexity
+    :return: Pairwise joint probabilities
+    """
+
     # cast type distances array
     n_samples = distances_csr.shape[0]
     distances_csr.sort_indices()
@@ -117,7 +167,20 @@ def compute_pairwise_joint_probabilities_nn(distances_csr, perplexity):
     return P
 
 
-def gradient_decent(y, P, it, n_iter, momentum=0.5, learning_rate=200.0, method='exact', angle=0.5):
+def gradient_decent(y: np.array, P: np.array, it: int, n_iter: int, momentum: float = 0.5, learning_rate: float = 200.0,
+                    method: str = 'exact'):
+    """
+    Perform gradient decent algorithm.
+
+    :param y: Output 2d mapped data
+    :param P: Pairwise joint probabilities of input data
+    :param it: Current iteration
+    :param n_iter: Number of iterations
+    :param momentum: Gradient decent update momentum
+    :param learning_rate: Learning rate of gradient decent
+    :param method: Method ('exact' or 'barnes-hut')
+    :return: Output data y representing input data in 2d space, current iteration, KL divergence
+    """
 
     # init parameters
     min_gain = 0.01
@@ -132,6 +195,7 @@ def gradient_decent(y, P, it, n_iter, momentum=0.5, learning_rate=200.0, method=
         if method == 'exact':
             kl_divergence, grad = kl_divergence_grad(y, P)
         else:
+            angle = 0.5
             kl_divergence, grad = kl_divergence_bh_grad(y, P, angle)
 
         # use adaptive learning rate
@@ -154,19 +218,36 @@ def gradient_decent(y, P, it, n_iter, momentum=0.5, learning_rate=200.0, method=
     return y, i, kl_divergence
 
 
-def kl_divergence_bh_grad(y, P, angle=0.5):
+def kl_divergence_bh_grad(y: np.array, P: np.array, angle: float = 0.5):
+    """
+    Calculate barnes hut gradient.
+
+    :param y: Output 2d mapped data
+    :param P: Pairwise joint probabilities of input data
+    :param angle: Angle value for barnes-hut algorithm
+    :return: KL divergence, gradient
+    """
+
     y = y.astype(np.float32, copy=False)
 
     val_P = P.data.astype(np.float32, copy=False)
     neighbors = P.indices.astype(np.int64, copy=False)
     indptr = P.indptr.astype(np.int64, copy=False)
 
-    grad, error = gradient(val_P, y, neighbors, indptr, angle)
+    grad, kl_divergence = gradient(val_P, y, neighbors, indptr, angle)
     grad *= 4
-    return error, grad
+    return kl_divergence, grad
 
 
-def kl_divergence_grad(y, P):
+def kl_divergence_grad(y: np.array, P: np.array):
+    """
+     Calculate gradient.
+
+     :param y: Output 2d mapped data
+     :param P: Pairwise joint probabilities of input data
+     :return: KL divergence, gradient
+     """
+
     # compute q(i,j)
     y_distances = compute_pairwise_distances(y, True)
     nominator = (1 + y_distances) ** (-1)
@@ -187,44 +268,41 @@ def kl_divergence_grad(y, P):
     return kl_divergence, grad
 
 
-def check_random_state(seed):
-    if seed is None or seed is np.random:
-        return np.random.mtrand._rand
-    if isinstance(seed, numbers.Integral):
-        return np.random.RandomState(seed)
-    if isinstance(seed, np.random.RandomState):
-        return seed
-    raise ValueError('%r cannot be used to seed a numpy.random.RandomState'
-                     ' instance' % seed)
+def TSNE(X: np.array, perplexity: int = 30, n_iter: int = 1000, learning_rate: float = 200., early_exaggeration: float= 4.0,
+         method: str = "exact", random_state: int = None, verbose: int = 0):
+    """
+    Calculates 2d representation of input data.
 
-
-def TSNE(X, perplexity=30, n_iter=1000, learning_rate=200, early_exaggeration=4.0, method="exact",
-         random_state=None, verbose=0, angle=0.5):
-
+    :param X: Input data
+    :param perplexity: Input perplexity
+    :param n_iter: Number of iteration of gradient decent
+    :param learning_rate: Value of learning rate for gradient decent
+    :param early_exaggeration: Early exaggeration value
+    :param method: Type of method to use ('exact' or 'barnes_hut')
+    :param random_state: Random state
+    :param verbose: Verbose
+    :return y: 2d representation of input data
+    """
     n_samples = X.shape[0]
     n_components = 2
 
-    # compute distances between training samples
     random_state = check_random_state(random_state)
 
-    # compute pairwise affinities p(j|i) whith perplexity Perp
+    # compute pairwise affinities p(j|i) with defined perplexity
     if method == "exact":
         distances = compute_pairwise_distances(X, True)
         P = compute_pairwise_joint_probabilities(distances, perplexity)
     elif method == "barnes_hut":
-
-        # make NearestNeighbors graph
-
         # Compute the number of nearest neighbors to find.
         # LvdM uses 3 * perplexity as the number of neighbors.
-        # In the event that we have very small # of points
+        # In the event that we have very small number of points
         # set the neighbors to n - 1.
         n_neighbors = min(n_samples - 1, int(3. * perplexity + 1))
 
         # compute distances
         kd_tree = KDTree(X)
 
-        # Take 1 more neigbour cause first is always same sample
+        # Take 1 more neighbour cause first is always same sample
         distances, indices = kd_tree.query(X, k=n_neighbors + 1)
         distances = distances[:, 1:]
         indices = indices[:, 1:]
@@ -244,21 +322,23 @@ def TSNE(X, perplexity=30, n_iter=1000, learning_rate=200, early_exaggeration=4.
 
     # sample init y from Gauss ~ N(0, 10^(-4)*I)
     y = 1e-4 * random_state.randn(n_samples, n_components).astype(np.float32)
+
     # use gradient decent to find the solution
-    # first explore for n_iter = 250, momentum = 0.5, early_exaggeration = 4
+    # first explore for n_iter = 250, momentum = 0.5, * early_exaggeration
     n_exploration_iter = 250
     P *= early_exaggeration
     y, it, error = gradient_decent(y=y, P=P, it=0, n_iter=n_exploration_iter, momentum=0.5,
-                                   learning_rate = learning_rate, method=method, angle=angle)
+                                   learning_rate=learning_rate, method=method)
     if verbose == 1:
         print("[t-SNE] KL divergence after", it + 1, "iterations:", error)
 
+    # use gradient decent to find the solution
     # Run remaining iteration with momentum = 0.8
     remaining_iter = n_iter - n_exploration_iter
     P /= early_exaggeration
     if remaining_iter > 0:
         y, it, error = gradient_decent(y=y, P=P, it=it + 1, n_iter=n_iter, momentum=0.8,
-                                       learning_rate = learning_rate, method=method, angle=angle)
+                                       learning_rate=learning_rate, method=method)
     if verbose == 1:
         print("[t-SNE] KL divergence after", it + 1, "iterations:", error)
 
