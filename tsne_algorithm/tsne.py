@@ -8,8 +8,8 @@ import numpy as np
 import math
 import numbers
 from scipy.sparse import csr_matrix
-from trees.kd_tree import KDTree
-from barnes_hut_tsne import gradient
+from tsne_algorithm.trees.kd_tree import KDTree
+from tsne_algorithm.barnes_hut_tsne import gradient
 
 EPSILON = np.finfo(np.double).eps
 
@@ -294,9 +294,7 @@ def TSNE(X: np.array, perplexity: int = 30, n_iter: int = 1000, learning_rate: f
         P = compute_pairwise_joint_probabilities(distances, perplexity)
     elif method == "barnes_hut":
         # Compute the number of nearest neighbors to find.
-        # LvdM uses 3 * perplexity as the number of neighbors.
-        # In the event that we have very small number of points
-        # set the neighbors to n - 1.
+        # Use 3 * perplexity as the number of neighbors.
         n_neighbors = min(n_samples - 1, int(3. * perplexity + 1))
 
         # compute distances

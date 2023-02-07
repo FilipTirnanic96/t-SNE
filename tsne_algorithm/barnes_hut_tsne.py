@@ -5,7 +5,7 @@ Created on Sat Aug 22 18:05:48 2020
 @author: Filip
 """
 import numpy as np
-from trees.quad_tree import QuadTree
+from tsne_algorithm.trees.quad_tree import QuadTree
 from time import time
 FLOAT64_EPS = np.finfo(np.float64).eps
 FLOAT32_TINY = np.finfo(np.float32).tiny

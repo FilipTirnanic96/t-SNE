@@ -7,7 +7,7 @@ Created on Mon Jul 13 11:00:20 2020
 import numpy as np
 import matplotlib.pyplot as plt
 from time import time
-import tsne
+import tsne_algorithm.tsne
 from sklearn.manifold import TSNE
 
 np.random.seed(50)
@@ -55,7 +55,7 @@ plt.show()
 
 
 start_time = time()
-X_trans = tsne.TSNE(X, perplexity = 30, n_iter = 1000, early_exaggeration = 1, method = "barnes_hut", random_state = 1, verbose = 1)
+X_trans = tsne_algorithm.tsne.TSNE(X, perplexity = 30, n_iter = 1000, early_exaggeration = 1, method = "barnes_hut", random_state = 1, verbose = 1)
 elapsed_time = time() - start_time
 print("The execution of simple t-SNE last for ", elapsed_time, "s")
 

@@ -4,8 +4,6 @@ Created on Mon Aug 24 14:31:26 2020
 
 @author: Filip
 """
-from time import time
-
 import numpy as np
 import matplotlib.pyplot as plt
 
