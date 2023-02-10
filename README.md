@@ -44,14 +44,14 @@ KL divergence is minimized using <b><i>gradient decent algorithm, with adaptive 
 ## Barnes-Hut-SNE algorithm <a name="p2" /></a>
 
 <p align="justify"> 
-Time and memory complexity of t-SNE algorithm is <i>O(N^2)</i>, where N is number of data points, which is not appropriate for datasets with more then few thousend points. Barnes-Hut-SNE is approximation of t-SNE algorithms which reuires  <i>O(NlogN)</i> time and memory complexity and can be used for large datasets. Barnes-Hut-SNE uses 2 approximations: <br/>
+Time and memory complexity of t-SNE algorithm is <i>O(N^2)</i>, where N is number of data points, which is not appropriate for datasets with more than few thousand points. Barnes-Hut-SNE is approximation of t-SNE algorithms which requires <i>O(NlogN)</i> time and memory complexity and can be used for large datasets. Barnes-Hut-SNE uses 2 approximations: <br/>
 	&emsp;1. Approximation of input data <b>similarity <i>pij</i></b> <br/>
 	&emsp;2. Approximation of <b>t-SNE gradient</b> calculation <br/>
 	
-First approximation is done using <b>k-dimensional (k-d) tree</b> for finding the first <i>p=3*perplxity</i> neighbours of each <b>input data</b> point. Complexity of this approach is <i>O(NlogN)</i>. Example <b>k-d tree</b> constructed on synthetic data is presented in picture below:	
+First approximation is done using <b>k-dimensional (k-d) tree</b> for finding the first <i>p=3*perplexity</i> neighbors of each <b>input data</b> point. Complexity of this approach is <i>O(NlogN)</i>. Example <b>k-d tree</b> constructed on synthetic data is presented in picture below:	
 </p>
 
-<img src="https://user-images.githubusercontent.com/24530942/218111702-c3240ee8-97b7-43a4-affa-6b9dce6c3bea.png" height="250" width="300"> <br/>
+<img src="https://user-images.githubusercontent.com/24530942/218128524-47397349-59a7-41f7-b1ee-f1c1e3f361f5.png" height="250" width="300"> <br/>
 
 <p align="justify"> 
 t-SNE KL gradient is defined with formula:
@@ -69,7 +69,7 @@ KL Gradient can be represented as follows:
 	<b><i>F_attr</i></b> can be calculated in <i>O(pN)</i> time complexity. <b><i>F_rep</i></b> requires <i>O(N^2)</i> time complexity which we can reduce to <i>O(NlogN)</i> using Barnes-Hut approximation. Barnes-Hut-SNE constructs <b>quad tree</b> on output (low-dimensional) data <i>Y</i> and in each iteration of calculation of  <i>F_rep</i> it decides if current node can be used as summary of contribution to <i>F_rep</i> for all the data inside that node. Example <b>quad tree</b> constructed on synthetic data is presented in picture below:
 </p>
 
-<img src="https://user-images.githubusercontent.com/24530942/218120826-ce35b7ca-14a8-417c-a610-696b5e8cb8fe.png" height="250" width="300"> <br/>
+<img src="https://user-images.githubusercontent.com/24530942/218128698-dfab8405-8696-421d-a39b-733479585167.png" height="250" width="300"> <br/>
 
 ## t-SNE and Barnes-Hut-SNE project structure <a name="p5" /></a>
 
