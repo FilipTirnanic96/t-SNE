@@ -71,10 +71,23 @@ KL Gradient can be represented as follows:
 
 <img src="https://user-images.githubusercontent.com/24530942/218128698-dfab8405-8696-421d-a39b-733479585167.png" height="250" width="300"> <br/>
 
-## t-SNE and Barnes-Hut-SNE project structure <a name="p5" /></a>
+## t-SNE and Barnes-Hut-SNE project structure <a name="p3" /></a>
 
 
-## Databases and results <a name="p5" /></a>
+## Databases and results <a name="p4" /></a>
+
+<p align="justify"> 
+Two databases are use as test of tsne and Barnes-Hut-SNE implementation:<br/>
+&emsp;1. <b>MNIST</b> - 6000 images of digits 0-9 with resolution 28x28. Sample images can be found below <br/>
+</p>
+
+<img src="https://user-images.githubusercontent.com/24530942/218143608-7697d1b7-45cc-4996-8c54-ee033e547964.png" height="250" width="300"> <br/>
+
+<p align="justify"> 
+&emsp;2. <b>Olivetti faces</b> - 400 images of 40 different people with resolution 64x64. Sample images can be found below. <br/>
+</p>
+
+<img src="https://user-images.githubusercontent.com/24530942/218144362-822d55e5-878c-46dd-8c7f-63cb5e6e271a.png" height="250" width="300"> <br/>
 
 
 ## References <a name="p5" /></a>
