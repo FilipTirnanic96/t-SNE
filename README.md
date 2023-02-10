@@ -3,7 +3,9 @@
 ## Table of contents
 1. [t-SNE algorithm](#p1)
 2. [Barnes-Hut-SNE algorithm](#p2)
-3. [References](#p5)
+3. [t-SNE and Barnes-Hut-SNE project structure](#p3)
+4. [Databases and results](#p4)
+5. [References](#p5)
 
 ## t-SNE algorithm <a name="p1" /></a>
 
@@ -33,18 +35,47 @@ For mapping to be successful we want that these high dimensional distributions <
 <img src="https://user-images.githubusercontent.com/24530942/218095840-53886d17-30ee-427e-8d08-b86dcca5be7d.png" height="60" width="250">
 
 <p align="justify">
-KL divergence is minimized using <b><i>gradient decent algorithm, with adaptive learning rate and momentum.</i></b> <br/>
+KL divergence is minimized using <b><i>gradient decent algorithm, with adaptive learning rate and momentum.</i></b> <br/><br/>
   <ins>Pseudo code od the algorithm can be found below:</ins><br/>
 </p> 
 
 <img src="https://user-images.githubusercontent.com/24530942/218096573-1811ded6-f999-4833-8a8f-7fee2afa24e6.png" height="300" width="550">
-	<br/>
   
 ## Barnes-Hut-SNE algorithm <a name="p2" /></a>
 
-<p>
-Documentation in progress
+<p align="justify"> 
+Time and memory complexity of t-SNE algorithm is <i>O(N^2)</i>, where N is number of data points, which is not appropriate for datasets with more then few thousend points. Barnes-Hut-SNE is approximation of t-SNE algorithms which reuires  <i>O(NlogN)</i> time and memory complexity and can be used for large datasets. Barnes-Hut-SNE uses 2 approximations: <br/>
+	&emsp;1. Approximation of input data <b>similarity <i>pij</i></b> <br/>
+	&emsp;2. Approximation of <b>t-SNE gradient</b> calculation <br/>
+	
+First approximation is done using <b>k-dimensional (k-d) tree</b> for finding the first <i>p=3*perplxity</i> neighbours of each <b>input data</b> point. Complexity of this approach is <i>O(NlogN)</i>. Example <b>k-d tree</b> constructed on synthetic data is presented in picture below:	
 </p>
+
+<img src="https://user-images.githubusercontent.com/24530942/218111702-c3240ee8-97b7-43a4-affa-6b9dce6c3bea.png" height="250" width="300"> <br/>
+
+<p align="justify"> 
+t-SNE KL gradient is defined with formula:
+</p>
+
+<img src="https://user-images.githubusercontent.com/24530942/218116261-6f8e7e46-59c5-4daf-ab32-b3c7ea03576b.png" height="70" width="500"> <br/>
+
+<p align="justify"> 
+KL Gradient can be represented as follows:
+</p>
+
+<img src="https://user-images.githubusercontent.com/24530942/218118325-b3a8e6b5-40ad-4b48-8a53-dabe24a90fdc.png" height="80" width="500"> <br/>
+
+<p align="justify"> 
+	<b><i>F_attr</i></b> can be calculated in <i>O(pN)</i> time complexity. <b><i>F_rep</i></b> requires <i>O(N^2)</i> time complexity which we can reduce to <i>O(NlogN)</i> using Barnes-Hut approximation. Barnes-Hut-SNE constructs <b>quad tree</b> on output (low-dimensional) data <i>Y</i> and in each iteration of calculation of  <i>F_rep</i> it decides if current node can be used as summary of contribution to <i>F_rep</i> for all the data inside that node. Example <b>quad tree</b> constructed on synthetic data is presented in picture below:
+</p>
+
+<img src="https://user-images.githubusercontent.com/24530942/218120826-ce35b7ca-14a8-417c-a610-696b5e8cb8fe.png" height="250" width="300"> <br/>
+
+## t-SNE and Barnes-Hut-SNE project structure <a name="p5" /></a>
+
+
+## Databases and results <a name="p5" /></a>
+
 
 ## References <a name="p5" /></a>
 Implementation of t-SNE algorithm<br/>
