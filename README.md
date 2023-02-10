@@ -8,19 +8,38 @@
 ## t-SNE algorithm <a name="p1" /></a>
 
 <p align="justify">
-t-SNE algorithm represents non linear dimensionality reduction method which maps high-dimensional data X = {x1, x2, ..., xn} in low dimensional data Y = {y1, y2, ..., yn} such that we perserve as much information as possible. This is done by making pariwise simmilarities <i>pij</i> between high dimensional points <i>X</i> as simmilar as possible to pairwise similarities <i>qij</i> between low dimensional points <i>Y</i>. <br/>
-Pariwise simmilarities <i>pij</i> are defined as:<br/>
+t-SNE algorithm represents non linear dimensionality reduction method which maps high-dimensional data X = {x1, x2, ..., xn} in low dimensional data Y = {y1, y2, ..., yn} such that we preserve as much information as possible. This is done by making pairwise similarities <b><i>pij</i></b> between high dimensional points <i>X</i> as similar as possible to pairwise similarities <b><i>qij</i></b> between low dimensional points <i>Y</i>. <br/>
+Pairwise similarities <b><i>pij</i></b> are defined with Gaussian distributions:<br/>
 </p>
 
-![image](https://user-images.githubusercontent.com/24530942/218084487-93d401dc-6198-4944-93a4-4d0a1794100a.png) <br/>
+<img src="https://user-images.githubusercontent.com/24530942/218084487-93d401dc-6198-4944-93a4-4d0a1794100a.png" height="200" width="400"><br/>
 
 <p align="justify">
-  Where each of Gaussian variances centered in data point <i>xi</i> we can obtain by binary search of <i>sigma_i</i> for predefined <i>perplexity</i> (neighbourhood points): <br/>
+  Where each of Gaussian variances centered in data point <i>xi</i> we can obtain by binary search of <i>sigma_i</i> for predefined <i>perplexity</i> (neighborhood points): <br/>
  </p>
  
-  ![image](https://user-images.githubusercontent.com/24530942/218085105-00690dd0-953e-4aa8-8e47-2e78f06b843b.png)
+<img src="https://user-images.githubusercontent.com/24530942/218085105-00690dd0-953e-4aa8-8e47-2e78f06b843b.png" height="50" width="400"><br/>
 
- 
+<p align="justify">
+  Pairwise similarities <b><i>qij</i></b> are defined with Student t-distribution:<br/>
+ </p> 
+
+<img src="https://user-images.githubusercontent.com/24530942/218094389-545672ba-a1ed-4c34-a10a-ce49dcf6d0f0.png" height="70" width="400"><br/>
+
+<p align="justify">
+Student t-distribution is used to overcome <b>"Crowding Problem"</b>. Similarities between same points are set to zero so <i>pij</i> and <i>qij</i> are set to 0.<br/>
+For mapping to be successful we want that these high dimensional distributions <i>pij</i> are as same as possible to low dimensional distributions <i>qij</i>. Hance, <b>Kullback-Leibler divergence</b> is used as criterium function which is minimized:<br/>
+</p> 
+<img src="https://user-images.githubusercontent.com/24530942/218095840-53886d17-30ee-427e-8d08-b86dcca5be7d.png" height="60" width="250">
+
+<p align="justify">
+KL divergence is minimized using <b><i>gradient decent algorithm, with adaptive learning rate and momentum.</i></b> <br/>
+  <ins>Pseudo code od the algorithm can be found below:</ins><br/>
+</p> 
+
+<img src="https://user-images.githubusercontent.com/24530942/218096573-1811ded6-f999-4833-8a8f-7fee2afa24e6.png" height="300" width="550">
+	<br/>
+  
 ## Barnes-Hut-SNE algorithm <a name="p2" /></a>
 
 <p>
