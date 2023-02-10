@@ -395,7 +395,7 @@ class KDTree:
             raise ValueError("Bounds can be visualize just for 2D data")
 
         plt.plot(self.data[:, 0], self.data[:, 1], 'ro')
-        plt.title("Kd tree")
+        plt.title("k-d tree")
         plt.xlabel("x1")
         plt.ylabel("x2")
         for i_node in np.arange(0, self.node_bounds.shape[1]):

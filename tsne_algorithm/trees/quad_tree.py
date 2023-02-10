@@ -247,11 +247,11 @@ class QuadTree:
 
         return index
 
-    def visualize_bounds(self):
+    def visualize_bounds(self, data):
         """
         Visualise bounds of quad tree.
         """
-
+        plt.plot(data[:, 0], data[:, 1], 'ro')
         plt.title("Quad tree")
         plt.xlabel("x1")
         plt.ylabel("x2")
