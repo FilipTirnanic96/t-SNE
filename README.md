@@ -7,10 +7,20 @@
 
 ## t-SNE algorithm <a name="p1" /></a>
 
-<p>
-Documentation in progress
+<p align="justify">
+t-SNE algorithm represents non linear dimensionality reduction method which maps high-dimensional data X = {x1, x2, ..., xn} in low dimensional data Y = {y1, y2, ..., yn} such that we perserve as much information as possible. This is done by making pariwise simmilarities <i>pij</i> between high dimensional points <i>X</i> as simmilar as possible to pairwise similarities <i>qij</i> between low dimensional points <i>Y</i>. <br/>
+Pariwise simmilarities <i>pij</i> are defined as:<br/>
 </p>
 
+![image](https://user-images.githubusercontent.com/24530942/218084487-93d401dc-6198-4944-93a4-4d0a1794100a.png) <br/>
+
+<p align="justify">
+  Where each of Gaussian variances centered in data point <i>xi</i> we can obtain by binary search of <i>sigma_i</i> for predefined <i>perplexity</i> (neighbourhood points): <br/>
+ </p>
+ 
+  ![image](https://user-images.githubusercontent.com/24530942/218085105-00690dd0-953e-4aa8-8e47-2e78f06b843b.png)
+
+ 
 ## Barnes-Hut-SNE algorithm <a name="p2" /></a>
 
 <p>
