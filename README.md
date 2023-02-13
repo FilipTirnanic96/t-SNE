@@ -93,7 +93,6 @@ Two databases are use as test of tsne and Barnes-Hut-SNE implementation:<br/>
 ## References <a name="p5" /></a>
 Implementation of t-SNE algorithm<br/>
 t-SNE docs:<br/>
-https://www.microsoft.com/en-us/research/wp-content/uploads/2016/06/www2016_BigDataVisualization-1.pdf<br/>
 https://distill.pub/2016/misread-tsne/<br/>
 https://towardsdatascience.com/t-sne-clearly-explained-d84c537f53a<br/>
 https://jeremy9959.net/Blog/tsne_annotated-fixed/<br/>
