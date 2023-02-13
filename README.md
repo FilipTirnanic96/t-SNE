@@ -73,6 +73,11 @@ KL Gradient can be represented as follows:
 
 ## t-SNE and Barnes-Hut-SNE project structure <a name="p3" /></a>
 
+<p align="justify">
+Project structure can be found in picture below. Module <i>tsne_algorithm</i> is the core module and has <b>t-SNE</b> and <b>Barnes-Hut-SNE</b> implemented using <b>only numpy</b>. Implementation of <b>tree structures</b> (k-d tree and quad tree) can be found in module <i>tsne_algorithm/trees</i>. Module <i>tsne_test_script</i> has scripts for testing t-SNE implementation and it is used for <b>results visualisation</b>. Folder <i>dataset</i> contains data used for testing t-SNE implementation. Test data can be obtaind just by <b>unzipping 7z files</b>. <br/>
+</p>
+
+<img src="https://user-images.githubusercontent.com/24530942/218454261-d58ce0b8-b71e-4421-81c8-2b85a7699e2a.png" height="400" width="200"> <br/>
 
 ## Databases and results <a name="p4" /></a>
 
