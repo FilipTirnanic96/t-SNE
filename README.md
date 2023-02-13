@@ -91,23 +91,20 @@ Two databases are use as test of tsne and Barnes-Hut-SNE implementation:<br/>
 
 
 ## References <a name="p5" /></a>
-Implementation of t-SNE algorithm<br/>
-t-SNE docs:<br/>
+**Implementation of t-SNE algorithm references**<br/>
+<ins>t-SNE docs:</ins><br/>
 https://distill.pub/2016/misread-tsne/<br/>
 https://towardsdatascience.com/t-sne-clearly-explained-d84c537f53a<br/>
 https://jeremy9959.net/Blog/tsne_annotated-fixed/<br/>
-http://jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf<br/><br/>
-
-Adaptive learning rate update:<br/>
+http://jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf<br/>
+<ins>Adaptive learning rate update:</ins><br/>
 https://web.cs.umass.edu/publication/docs/1987/UM-CS-1987-117.pdf<br/>
-
-KD tree:<br/>
+<ins>K-d tree:</ins><br/>
 https://upcommons.upc.edu/bitstream/handle/2117/76382/hpgm_15_1.pdf<br/>
-https://arxiv.org/pdf/cs/9901013.pdf (sliding split point)<br>
-https://en.wikipedia.org/wiki/K-d_tree (wiki)<br><br/>
-Neighbors Heap:<br>
+https://arxiv.org/pdf/cs/9901013.pdf<br>
+https://en.wikipedia.org/wiki/K-d_tree<br/>
+<ins>Neighbors Heap:</ins><br>
 https://www.hackerearth.com/practice/notes/heaps-and-priority-queues/<br>
-
-Barnes-Hut aproximation in t-SNE:<br/>
+<ins>Barnes-Hut aproximation in t-SNE:</ins><br/>
 https://arxiv.org/pdf/1301.3342.pdf <br/>
 https://jheer.github.io/barnes-hut/
