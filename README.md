@@ -136,6 +136,6 @@ https://en.wikipedia.org/wiki/K-d_tree<br/>
 https://www.hackerearth.com/practice/notes/heaps-and-priority-queues/<br>
 <ins>Quad tree</ins><br/>
 https://en.wikipedia.org/wiki/Quadtree<br/>
-<ins>Barnes-Hut aproximation in t-SNE:</ins><br/>
+<ins>Barnes-Hut approximation in t-SNE:</ins><br/>
 https://arxiv.org/pdf/1301.3342.pdf <br/>
 https://jheer.github.io/barnes-hut/
