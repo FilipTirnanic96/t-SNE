@@ -121,7 +121,7 @@ Two databases are use as test of tsne and Barnes-Hut-SNE implementation:<br/>
 
 ## References <a name="p5" /></a>
 **Implementation of t-SNE algorithm references**<br/>
-<ins>t-SNE docs:</ins><br/>
+<ins>t-SNE algorithm:</ins><br/>
 https://distill.pub/2016/misread-tsne/<br/>
 https://towardsdatascience.com/t-sne-clearly-explained-d84c537f53a<br/>
 https://jeremy9959.net/Blog/tsne_annotated-fixed/<br/>
@@ -134,6 +134,8 @@ https://arxiv.org/pdf/cs/9901013.pdf<br>
 https://en.wikipedia.org/wiki/K-d_tree<br/>
 <ins>Neighbors Heap:</ins><br>
 https://www.hackerearth.com/practice/notes/heaps-and-priority-queues/<br>
+<ins>Quad tree</ins><br/>
+https://en.wikipedia.org/wiki/Quadtree<br/>
 <ins>Barnes-Hut aproximation in t-SNE:</ins><br/>
 https://arxiv.org/pdf/1301.3342.pdf <br/>
 https://jheer.github.io/barnes-hut/
