@@ -89,6 +89,30 @@ Two databases are use as test of tsne and Barnes-Hut-SNE implementation:<br/>
 
 <img src="https://user-images.githubusercontent.com/24530942/218144362-822d55e5-878c-46dd-8c7f-63cb5e6e271a.png" height="250" width="300"> <br/>
 
+<p align="justify"> 
+	<ins><b> Results on MNIST dataset on 4000 samples of t-SNE "exact" method </b> </ins> <br/>
+</p>
+
+<img src="https://user-images.githubusercontent.com/24530942/218434223-27492b0c-a990-4f28-a800-7f17a818de9f.png" height="350" width="750"> <br/>
+
+<p align="justify"> 
+	<ins><b> Results on MNIST dataset on 1000 samples of Barnes-Hut-SNE method </b> </ins> <br/>
+</p>
+
+<img src="https://user-images.githubusercontent.com/24530942/218435197-a8f38874-365c-43d2-af95-0b0316a4bb94.png" height="350" width="750"> <br/>
+
+
+<p align="justify"> 
+	<ins><b> Results on Olivetti faces dataset of t-SNE "exact" method </b> </ins> <br/>
+</p>
+
+<img src="https://user-images.githubusercontent.com/24530942/218441760-f1f72791-454b-45ac-91d9-b8b72ff4e336.png" height="300" width="850"> <br/>
+
+<p align="justify"> 
+	<ins><b> Results on Olivetti faces dataset of Barnes-Hut-SNE method </b> </ins> <br/>
+</p>
+
+<img src="https://user-images.githubusercontent.com/24530942/218442401-2e7d55cc-20d6-4079-a5eb-65cb9cc9a6de.png" height="300" width="850"> <br/>
 
 ## References <a name="p5" /></a>
 **Implementation of t-SNE algorithm references**<br/>
