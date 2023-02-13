@@ -98,7 +98,7 @@ https://towardsdatascience.com/t-sne-clearly-explained-d84c537f53a<br/>
 https://jeremy9959.net/Blog/tsne_annotated-fixed/<br/>
 http://jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf<br/><br/>
 
-adaptive learning_rate update:<br/>
+Adaptive learning rate update:<br/>
 https://web.cs.umass.edu/publication/docs/1987/UM-CS-1987-117.pdf<br/>
 
 KD tree:<br/>
@@ -109,4 +109,5 @@ Neighbors Heap:<br>
 https://www.hackerearth.com/practice/notes/heaps-and-priority-queues/<br>
 
 Barnes-Hut aproximation in t-SNE:<br/>
-https://arxiv.org/pdf/1301.3342.pdf
+https://arxiv.org/pdf/1301.3342.pdf <br/>
+https://jheer.github.io/barnes-hut/
